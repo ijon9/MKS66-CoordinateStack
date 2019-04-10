@@ -56,11 +56,6 @@ See the file script for an example of the file format
 """
 ARG_COMMANDS = [ 'box', 'sphere', 'torus', 'circle', 'bezier', 'hermite', 'line', 'scale', 'move', 'rotate', 'save' ]
 
-def clear(l):
-    if len(l) == 0:
-        return
-    while len(l) > 0:
-        l.pop()
 
 def parse_file( fname, edges, polygons, csystems, screen, color ):
 
@@ -94,7 +89,7 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
             d = csystems[-1]
             matrix_mult(d, polygons)
             draw_polygons(polygons, screen, color)
-            clear(polygons)
+            polygons = []
 
         elif line == 'torus':
             #print 'TORUS\t' + str(args)
@@ -104,7 +99,7 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
             d = csystems[-1]
             matrix_mult(d, polygons)
             draw_polygons(polygons, screen, color)
-            clear(polygons)
+            polygons = []
 
         elif line == 'box':
             #print 'BOX\t' + str(args)
@@ -114,7 +109,7 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
             d = csystems[-1]
             matrix_mult(d, polygons)
             draw_polygons(polygons, screen, color)
-            clear(polygons)
+            polygons = []
 
         elif line == 'circle':
             #print 'CIRCLE\t' + str(args)
@@ -136,6 +131,7 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
             d = csystems[-1]
             matrix_mult(d, edges)
             draw_lines(edges, screen, color)
+            edges = []
 
         elif line == 'line':
             #print 'LINE\t' + str(args)
@@ -146,24 +142,21 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
             d = csystems[-1]
             matrix_mult(d, edges)
             draw_lines(edges, screen, color)
+            edges = []
 
         elif line == 'scale':
             #print 'SCALE\t' + str(args)
             t = make_scale(float(args[0]), float(args[1]), float(args[2]))
             d = csystems[-1]
-            copy = [a[:] for a in d]
-            matrix_mult(t, copy)
-            csystems.pop(-1)
-            csystems.append(copy)
+            matrix_mult(d, t)
+            csystems[-1] = t
 
         elif line == 'move':
             #print 'MOVE\t' + str(args)
             t = make_translate(float(args[0]), float(args[1]), float(args[2]))
             d = csystems[-1]
-            copy = [a[:] for a in d]
-            matrix_mult(t, copy)
-            csystems.pop(-1)
-            csystems.append(copy)
+            matrix_mult(d, t)
+            csystems[-1] = t
 
         elif line == 'rotate':
             #print 'ROTATE\t' + str(args)
@@ -176,10 +169,8 @@ def parse_file( fname, edges, polygons, csystems, screen, color ):
             else:
                 t = make_rotZ(theta)
             d = csystems[-1]
-            copy = [a[:] for a in d]
-            matrix_mult(t, copy)
-            csystems.pop(-1)
-            csystems.append(copy)
+            matrix_mult(d, t)
+            csystems[-1] = t
 
         elif line == 'display' or line == 'save':
             clear_screen(screen)
